@@ -38,7 +38,7 @@ public class Product {
 
 
     public Product(UUID id, String name, BigDecimal price, int stock) {
-        if(stock >= 0) {
+        if(stock < 0) {
             throw new IllegalArgumentException("Stock cannot be negative");
         }
         this.id = id;
