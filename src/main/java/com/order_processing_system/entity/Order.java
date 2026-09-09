@@ -69,9 +69,6 @@ public class Order {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
-        this.status = status;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -82,13 +79,10 @@ public class Order {
     }
 
     public List<OrderItem> getItems() {
-        return items;
+        return List.copyOf(items);
     }
 
-    public void setItems(List<OrderItem> items) {
-        this.items = items;
-    }
 
-    public Order() {
+    protected Order() {
     }
 }
