@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import com.order_processing_system.exception.InsufficientStockException;
+
 @Entity
 @Table(name = "products")
 public class Product {
@@ -57,10 +59,6 @@ public class Product {
         return stock;
     }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-
     public Product(UUID id, String name, BigDecimal price, Integer stock) {
         this.id = id;
         this.name = name;
@@ -69,5 +67,24 @@ public class Product {
     }
 
     public Product() {
+    }
+
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+        if (quantity > stock) {
+            throw new InsufficientStockException("Insufficient Stock");
+        }
+        stock -= quantity;
+    }
+
+    public void increaseStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException(
+                    "Quantity must be greater than zero");
+        }
+
+        stock += quantity;
     }
 }
