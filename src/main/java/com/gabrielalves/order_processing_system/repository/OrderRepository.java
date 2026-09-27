@@ -8,4 +8,5 @@ import com.gabrielalves.order_processing_system.entity.Order;
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
+    boolean existsByCustomerId(UUID customerId);
 }
