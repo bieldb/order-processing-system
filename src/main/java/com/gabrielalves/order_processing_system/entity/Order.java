@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.BatchSize;
+
+import com.gabrielalves.order_processing_system.exception.InvalidOrderStatusException;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,6 +42,8 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    // Em listagens paginadas, carrega os itens de vários pedidos em uma única consulta (evita N+1 sem fetch join + paginação em memória).
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
@@ -64,6 +70,27 @@ public class Order {
 
     public List<OrderItem> getItems() {
         return List.copyOf(items);
+    }
+
+    public void process() {
+        transitionTo(OrderStatus.PROCESSING);
+    }
+
+    public void complete() {
+        transitionTo(OrderStatus.COMPLETED);
+    }
+
+    // O estoque é reservado na criação do pedido, então o cancelamento devolve as unidades.
+    public void cancel() {
+        transitionTo(OrderStatus.CANCELLED);
+        items.forEach(item -> item.getProduct().increaseStock(item.getQuantity()));
+    }
+
+    private void transitionTo(OrderStatus next) {
+        if (!status.canTransitionTo(next)) {
+            throw new InvalidOrderStatusException(status, next);
+        }
+        this.status = next;
     }
 
     @PrePersist

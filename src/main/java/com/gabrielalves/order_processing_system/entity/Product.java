@@ -3,6 +3,8 @@ package com.gabrielalves.order_processing_system.entity;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.gabrielalves.order_processing_system.exception.InsufficientStockException;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -55,7 +57,7 @@ public class Product {
     public void decreaseStock(int quantity) {
         requirePositive(quantity);
         if (!hasStock(quantity)) {
-            throw new IllegalStateException("Estoque insuficiente para o produto: " + id);
+            throw new InsufficientStockException(id, quantity, stock);
         }
         this.stock -= quantity;
     }
